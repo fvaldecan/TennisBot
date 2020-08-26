@@ -2,7 +2,7 @@ const Cheerio = require('cheerio');
 const https = require('https');
 const atp_url = 'https://www.atptour.com';
 const Paginator = require("../../../extensions/paginator");
-const loadHTML = require("../../../extensions/helpers");
+const {loadHTML} = require("../../../extensions/helpers");
 const { MessageEmbed } = require("discord.js");
 const country_to_emoji = require('../../../extra/allcountries-2-emojis.json');
 
@@ -12,51 +12,43 @@ class ProfilePages extends Paginator {
         this.embeds = entries;
     }
 }
+
 module.exports = class PlayerProfile{
     constructor(msg,player){
         this.msg = msg;
         this.player = player
     }
+    getBasicStats($,html_table,attribute){
+        const stats = []
+        $(html_table).children().map((index,element)=>{
+            const text = $(element).find('div').attr(attribute);
+            stats.push(text);
+        });
+        return stats;
+    }
+    getBasicBio($,html_table,class_attr){
+        const bio = []
+        $(html_table).children().map((index,element)=>{
+            const text = $(element).find(class_attr).text().trim().replace(/\s\s+/g, '');
+            bio.push(text)
+        })
+        return bio;
+    }
     async findProfile(){
         console.log('Finding Player Profile...');
         const url = atp_url + this.player.link;
         console.log('Player url:', url);
-        const $ = loadHTML(url);
-        const profile_table = $('.player-profile-hero-table>div>table>tbody').children();
-        const first_row_texts = []
-        $(profile_table[0]).children().map((index,element)=>{
-            const text = $(element).find('.table-big-value').text().trim().replace(/\s\s+/g, '');
-            first_row_texts.push(text)
-        })
-        const second_row_texts = []
-        $(profile_table[1]).children().map((index,element)=>{
-            const text = $(element).find('.table-value').text().trim().replace(/\s\s+/g, '');
-            second_row_texts.push(text)
-        })
+        const $ = await loadHTML(url);
+        
         const stats_table = $('.players-stats-table>tbody').children();
-        const current_stats_singles = [];
-        $(stats_table[0]).children().map((index,element)=>{
-            const text = $(element).find('div').attr('data-singles');
-            current_stats_singles.push(text);
-        });
-        const current_stats_doubles = [];
-        $(stats_table[0]).children().map((index,element)=>{
-            const text = $(element).find('div').attr('data-doubles');
-            current_stats_doubles.push(text);
-        });
+        const current_stats_singles = this.getBasicStats($,stats_table[0],'data-singles')
+        const current_stats_doubles = this.getBasicStats($,stats_table[0],'data-doubles')
+        const career_stats_singles = this.getBasicStats($,stats_table[1],'data-singles')
+        const career_stats_doubles = this.getBasicStats($,stats_table[1],'data-doubles')
 
-        const career_stats_singles = []
-        $(stats_table[1]).children().map((index,element)=>{
-            const text = $(element).find('div').attr('data-singles');
-            career_stats_singles.push(text);
-        })
+        const profile_table = $('.player-profile-hero-table>div>table>tbody').children();
+        const player_main_info = this.getBasicBio($,profile_table[0],'.table-big-value').concat(this.getBasicBio($,profile_table[1],'.table-value'));
 
-        const career_stats_doubles = []
-        $(stats_table[1]).children().map((index,element)=>{
-            const text = $(element).find('div').attr('data-doubles');
-            career_stats_doubles.push(text);
-        })
-        const player_main_info = first_row_texts.concat(second_row_texts);
         const age = player_main_info[0] || 'Not Found';
         const turned_pro = player_main_info[1] || 'Not Found';
         const career_prize_money = career_stats_doubles[4] || 'Not Found';

@@ -1,9 +1,10 @@
-const atp_url = 'https://www.atptour.com';
 const Paginator = require("../../../extensions/paginator");
-const {loadHTML} = require("../../../extensions/helpers");
 const { MessageEmbed } = require("discord.js");
 const {Constants} = require("discord.js");
+const {loadHTML} = require("../../../extensions/helpers");
+const atp_url = 'https://www.atptour.com';
 const surfaces = ['clay','grass','hard','carpet','all'];
+const titles_and_finals_emoji = {'titles': '🏆','finalist': '🥈'}
 const surface_colors = { 
     'clay': Constants.Colors.CLAY, 
     'grass': Constants.Colors.GRASS,
@@ -11,7 +12,7 @@ const surface_colors = {
     'hard': Constants.Colors.HARD,
     'all': Constants.Colors.MAIN
 }
-const titles_and_finals_emoji = {'titles': '🏆','finalist': '🥈'}
+
 class StatsPages extends Paginator {
     constructor(title,message,entries) {
         super(title,message,entries);
@@ -19,6 +20,7 @@ class StatsPages extends Paginator {
         this.color = '';
     }
 }
+
 module.exports = class PlayerStats{
     constructor(msg,player,filters){
         this.msg = msg;

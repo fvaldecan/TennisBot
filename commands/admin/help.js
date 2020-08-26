@@ -1,6 +1,7 @@
 const { Command } = require('discord.js-commando');
 const AtpCommand = require('../atp/atp');
 const commands = ['','atp','wta','scores','gear',];
+
 module.exports = class HelpCommand extends Command{
     constructor(client) {
         super(client, {

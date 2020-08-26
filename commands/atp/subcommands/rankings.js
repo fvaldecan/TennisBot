@@ -1,11 +1,11 @@
-const Cheerio = require('cheerio');
-const https = require('https');
-const atp_url = 'https://www.atptour.com';
 const Paginator = require("../../../extensions/paginator");
 const { MessageEmbed } = require("discord.js");
+const {loadHTML} = require("../../../extensions/helpers");
+const atp_url = 'https://www.atptour.com';
 const game_type = {'singles':'Singles', 'doubles': 'Doubles'};
 const countries = require('../../../extra/countries.json');
 const country_to_emoji = require('../../../extra/allcountries-2-emojis.json');
+
 class RankPages extends Paginator {
     constructor(title,message,entries) {
         super(title,message,entries);
@@ -29,12 +29,7 @@ module.exports = class Rankings{
         this.args = args;
     }
     async findRanks() {
-        console.log(this.args);
-        if(!this.args.length){
-            // Help: 
-            console.log('ATP_RANKINGS TODO:');
-        }
-        console.log('Find Rankings...');
+        console.log('Finding Rankings...');
         const type = game_type[this.args.find(t => game_type[t.toLowerCase()])] || 'Singles';
         const country = countries[this.args.find(c => countries[c.toLowerCase()])] || '';
         const range = (this.args.find(r => r.includes('-')) || '1-5000').split('-');
@@ -42,14 +37,8 @@ module.exports = class Rankings{
         const range_last = (Number(range[1]) == range[1] && range[1] > range_first) ? range[1] : '5000';
         const url = atp_url + `/en/rankings/${type}?countryCode=${country}&rankRange=${range_first}-${range_last}`;
         console.log(url)
-        const html = await new Promise(resolve => {
-            https.get(url).on("response", function (response) {
-                let body = "";
-                response.on("data", (chunk) => body += chunk);
-                response.on("end", () => resolve(body));
-            });
-        });
-        const $ = Cheerio.load(html);
+        
+        const $ = await loadHTML(url);
         const table = $('tbody');
         if(table.children() < 2) return this.msg.reply('No players found with that command :(');
         let players = [];

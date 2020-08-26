@@ -1,5 +1,6 @@
 const Cheerio = require('cheerio');
 const https = require('https');
+
 module.exports =  {
     loadHTML: async function(url){
         const html = await new Promise(resolve => {

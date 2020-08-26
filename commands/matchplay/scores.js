@@ -1,8 +1,8 @@
-const Cheerio = require('cheerio');
-const https = require('https');
 const Paginator = require('../../extensions/paginator');
 const { MessageEmbed } = require("discord.js");
 const { Command } = require('discord.js-commando');
+const {loadHTML} = require("../../extensions/helpers");
+
 const gender_alts = { 
     'type-men2':{ tour:'atp', gameplay: 'singles',emoji:'🙋‍♂️'},
     'type-men4':{tour: 'atp', gameplay: 'doubles', emoji: '🙋‍♂️🙋‍♂️' },
@@ -57,14 +57,7 @@ module.exports = class ScoresCommand extends Command{
         }
         const url = ten_ex_url + `/?type=${type}l&year=${date.year}&month=${date.month}&day=${date.day}`;
         console.log('Scores URL: ', url);
-        const html = await new Promise(resolve => {
-            https.get(url).on("response", function (response) {
-                let body = "";
-                response.on("data", (chunk) => body += chunk);
-                response.on("end", () => resolve(body));
-            });
-        }); 
-        let $ = Cheerio.load(html); 
+        const $ = await loadHTML(url);
         const tbody_tag = $('tbody')[0]
         let events = [];
         let event_counter = -1;

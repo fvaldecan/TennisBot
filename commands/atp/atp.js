@@ -2,12 +2,10 @@ const { Command } = require('discord.js-commando');
 const Rankings = require('./subcommands/rankings.js');
 const PlayerProfile = require('./subcommands/player-profile');
 const PlayerStats = require('./subcommands/player-stats');
-
-const Cheerio = require('cheerio');
-const https = require('https');
+const {loadHTML} = require("../../extensions/helpers");
 const atp_url = 'https://www.atptour.com';
-
 const subcommands = ['rankings','player-profile','player-stats'];
+
 module.exports = class AtpCommand extends Command {
     constructor(client) {
         super(client, {
@@ -58,6 +56,7 @@ module.exports = class AtpCommand extends Command {
 
     }
     async searchPlayer(msg,args){
+        console.log('Searching Player...')
         console.log('Arguements ', args)
         args = args.slice(1,args.length)
         let player_names = [];
@@ -76,14 +75,7 @@ module.exports = class AtpCommand extends Command {
         const search_name = player_names.join('%20');
         const url = atp_url + `/en/search-results/players?searchTerm=${search_name}`;
         console.log('Search url: ', url)
-        const html = await new Promise(resolve => {
-            https.get(url).on("response", function (response) {
-                let body = "";
-                response.on("data", (chunk) => body += chunk);
-                response.on("end", () => resolve(body));
-            });
-        }); 
-        const $ = Cheerio.load(html); 
+        const $ = await loadHTML(url)
         const player_list = $('table.player-results-table').first().children();
         let players = [];
         player_list.children().map((p,element)=>{
