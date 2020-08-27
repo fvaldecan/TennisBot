@@ -3,7 +3,7 @@
 
 ### Features
 #### ATP/WTA Scores | `scores`
--Look up ATP/WTA scores from any date
+- Look up ATP/WTA scores from any date
 `10s scores`
 ![Scores Command Example](/screenshots/10s_scores.png)
 
