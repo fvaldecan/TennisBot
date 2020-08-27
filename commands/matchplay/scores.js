@@ -32,19 +32,21 @@ module.exports = class ScoresCommand extends Command{
         let date = {};
         let type = '';
         if(!args){
-            let today = new Date().toLocaleString('en-US').split(',')[0];
-            today = today.split('/');
-            date = {
-                year: today[2], 
-                month: today[0],
-                day: today[1]
-            }
-            // const today = new Date();
+            // let today = new Date().toLocaleString('en-US').split(',')[0];
+            // today = today.split('/');
             // date = {
-            //     year:today.getFullYear(), 
-            //     month: (today.getMonth()+1 < 10 ? '0'+ String(today.getMonth()+1) : String(today.getMonth()+1)),
-            //     day: today.getDate()
+            //     year: today[2], 
+            //     month: today[0],
+            //     day: today[1]
             // }
+
+            const today = new Date();
+            console.log(today)
+            date = {
+                year:today.getFullYear(), 
+                month: (today.getMonth()+1 < 10 ? '0'+ String(today.getMonth()+1) : String(today.getMonth()+1)),
+                day: today.getDate()
+            }
             type = 'all';
         }else{
             args = args.split('/');
